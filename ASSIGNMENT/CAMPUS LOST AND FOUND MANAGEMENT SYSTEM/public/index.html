@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Lost & Found Management System</title>
+  <meta name="description" content="Centralized campus lost and found item management portal with real-time tracking and metrics.">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="brand-container">
+      <div class="brand-icon">🏷️</div>
+      <div>
+        <h1 class="brand-title">Campus Lost & Found</h1>
+        <p class="brand-subtitle">Management System Portal (Localhost Server)</p>
+      </div>
+    </div>
+    <div class="nav-controls">
+      <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+    
+    <!-- 1. Statistics Cards -->
+    <section class="metrics-grid">
+      <div class="metric-card total">
+        <div class="metric-title">Total Reports</div>
+        <div id="statTotal" class="metric-value">0</div>
+      </div>
+      <div class="metric-card lost">
+        <div class="metric-title">Lost Items</div>
+        <div id="statLost" class="metric-value">0</div>
+      </div>
+      <div class="metric-card found">
+        <div class="metric-title">Found Items</div>
+        <div id="statFound" class="metric-value">0</div>
+      </div>
+      <div class="metric-card returned">
+        <div class="metric-title">Returned Items</div>
+        <div id="statReturned" class="metric-value">0</div>
+      </div>
+    </section>
+
+    <!-- 2. Action Toolbar & Buttons -->
+    <section class="toolbar-card">
+      <div class="action-buttons">
+        <button id="btnReportLostModal" class="btn btn-lost">
+          <span>🔍</span> Report Lost Item
+        </button>
+        <button id="btnReportFoundModal" class="btn btn-found">
+          <span>📦</span> Report Found Item
+        </button>
+        <button id="btnRefreshList" class="btn btn-secondary">
+          <span>🔄</span> Refresh Data
+        </button>
+      </div>
+      <div id="connectionModeBadge" class="badge badge-found">
+        Mode: Loading...
+      </div>
+    </section>
+
+    <!-- 3. Search & Filter Bar -->
+    <section class="filter-box">
+      <div class="form-group">
+        <label for="filterKeyword" class="form-label">Keyword Search</label>
+        <input type="text" id="filterKeyword" class="form-control" placeholder="Search name or desc...">
+      </div>
+      <div class="form-group">
+        <label for="filterCategory" class="form-label">Category</label>
+        <select id="filterCategory" class="form-control">
+          <option value="All Categories">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Personal Effects">Personal Effects</option>
+          <option value="Books & Stationery">Books & Stationery</option>
+          <option value="Clothing & Accessories">Clothing & Accessories</option>
+          <option value="ID Cards & Documents">ID Cards & Documents</option>
+          <option value="Keys & Locks">Keys & Locks</option>
+          <option value="Sports Equipment">Sports Equipment</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="filterStatus" class="form-label">Status</label>
+        <select id="filterStatus" class="form-control">
+          <option value="All Statuses">All Statuses</option>
+          <option value="Lost">Lost</option>
+          <option value="Found">Found</option>
+          <option value="Returned">Returned</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="filterLocation" class="form-label">Location</label>
+        <input type="text" id="filterLocation" class="form-control" placeholder="Search location...">
+      </div>
+      <div class="form-group" style="justify-content: flex-end;">
+        <button id="btnResetFilters" class="btn btn-secondary" style="height: 40px;">Clear Filters</button>
+      </div>
+    </section>
+
+    <!-- 4. Data Listing Table -->
+    <section class="table-card">
+      <div class="table-header-row">
+        <h2 class="table-title">Reported Items Directory</h2>
+        <span id="recordCountText" class="brand-subtitle" style="font-size:0.9rem; font-weight:600;">Showing 0 item(s)</span>
+      </div>
+      <div class="responsive-table">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Item Name</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Location</th>
+              <th>Date Reported</th>
+              <th>Reported By</th>
+              <th>Contact</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="itemsTableBody">
+            <!-- Dynamic Rows Injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Report / Edit Item Modal -->
+  <div id="itemModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle" class="modal-title">Report Lost Item</h3>
+        <button id="modalCloseBtn" class="close-btn">&times;</button>
+      </div>
+      <form id="itemForm">
+        <input type="hidden" id="modalItemId" value="">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="modalItemName" class="form-label">Item Name *</label>
+            <input type="text" id="modalItemName" class="form-control" required placeholder="e.g. Leather Wallet">
+          </div>
+          <div class="form-group">
+            <label for="modalCategory" class="form-label">Category *</label>
+            <select id="modalCategory" class="form-control" required>
+              <option value="Electronics">Electronics</option>
+              <option value="Personal Effects">Personal Effects</option>
+              <option value="Books & Stationery">Books & Stationery</option>
+              <option value="Clothing & Accessories">Clothing & Accessories</option>
+              <option value="ID Cards & Documents">ID Cards & Documents</option>
+              <option value="Keys & Locks">Keys & Locks</option>
+              <option value="Sports Equipment">Sports Equipment</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="modalStatus" class="form-label">Status *</label>
+            <select id="modalStatus" class="form-control" required>
+              <option value="Lost">Lost</option>
+              <option value="Found">Found</option>
+              <option value="Returned">Returned</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="modalDescription" class="form-label">Description *</label>
+            <textarea id="modalDescription" class="form-control" rows="3" required placeholder="Provide color, brand, or distinguishing marks..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="modalLocation" class="form-label">Location Lost/Found *</label>
+            <input type="text" id="modalLocation" class="form-control" required placeholder="e.g. Library 2nd Floor">
+          </div>
+          <div class="form-group">
+            <label for="modalDateReported" class="form-label">Date Reported *</label>
+            <input type="date" id="modalDateReported" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="modalReportedBy" class="form-label">Reported By *</label>
+            <input type="text" id="modalReportedBy" class="form-control" required placeholder="Your Full Name">
+          </div>
+          <div class="form-group">
+            <label for="modalContact" class="form-label">Contact Number *</label>
+            <input type="text" id="modalContact" class="form-control" required placeholder="e.g. 555-0192">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="modalCancelBtn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" id="modalSubmitBtn" class="btn btn-primary">Save Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color:#dc2626;">Confirm Item Deletion</h3>
+        <button id="deleteCloseBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to permanently delete this record from the database?</p>
+        <p><strong id="deleteItemSummaryText" style="color:var(--text-main);">Item Details</strong></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="deleteCancelBtn" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="deleteConfirmBtn" class="btn btn-lost">Delete Permanently</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <footer>
+    Campus Lost-and-Found Management System &copy; 2026 | Localhost Development Portal
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

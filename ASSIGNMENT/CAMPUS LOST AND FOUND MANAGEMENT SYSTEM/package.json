@@ -1,0 +1,14 @@
+{
+  "name": "campus-lost-and-found-web",
+  "version": "2.0.0",
+  "description": "Campus Lost and Found Management System - Web Application on Localhost",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7"
+  }
+}
